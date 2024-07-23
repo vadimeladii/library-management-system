@@ -14,6 +14,7 @@ public class MemberConverter implements Converter<MemberView, MemberEntity> {
         MemberEntity memberEntity = new MemberEntity();
         memberEntity.setId(view.getId());
         memberEntity.setName(view.getName());
+        memberEntity.setEmail(view.getEmail());
         memberEntity.setMembershipDate(DateUtils.parseStringToLocalDate(view.getMembershipDate(), DateUtils.yyyy_MM_dd));
 
         return memberEntity;

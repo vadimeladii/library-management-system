@@ -3,8 +3,10 @@ package library.md.service;
 import library.md.converter.BookConverter;
 import library.md.exception.InvalidRequestException;
 import library.md.exception.NotFoundException;
+import library.md.exception.ReferencedEntityException;
 import library.md.repository.AuthorRepository;
 import library.md.repository.BookRepository;
+import library.md.repository.BorrowRecordRepository;
 import library.md.repository.entity.BookEntity;
 import library.md.repository.entity.Status;
 import library.md.utils.DateUtils;
@@ -13,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +25,7 @@ public class BookService {
     private final BookRepository bookRepository;
     private final BookConverter bookConverter;
     private final AuthorRepository authorRepository;
+    private final BorrowRecordRepository borrowRecordRepository;
 
     public List<BookView> retrieve() {
         return bookRepository.findAll()
@@ -68,6 +73,20 @@ public class BookService {
         BookEntity bookEntity = bookRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Book with ID %d not found", id)));
 
-        bookRepository.delete(bookEntity);
+        List<Long> linkedIds = borrowRecordRepository.findIdsByBookEntityId(id);
+
+        Optional<String> linkedIdsString = linkedIds.isEmpty()
+                ? Optional.empty()
+                : Optional.of(linkedIds.stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(", ")));
+
+        linkedIdsString.ifPresentOrElse(
+                ids -> {
+                    throw new ReferencedEntityException(
+                            String.format("Cannot perform the operation due to a reference with BorrowEntity. Linked IDs: %s", ids));
+                },
+                () -> bookRepository.delete(bookEntity)
+        );
     }
 }

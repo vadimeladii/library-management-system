@@ -1,9 +1,6 @@
 package library.md.config;
 
-import library.md.exception.DuplicateKeyException;
-import library.md.exception.ErrorResponse;
-import library.md.exception.InvalidRequestException;
-import library.md.exception.NotFoundException;
+import library.md.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -15,8 +12,8 @@ import java.time.LocalDateTime;
 @ControllerAdvice
 public class ExceptionHandlerConfig extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(DuplicateKeyException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicateKeyException(DuplicateKeyException ex) {
+    @ExceptionHandler({DuplicateKeyException.class, ReferencedEntityException.class})
+    public ResponseEntity<ErrorResponse> handleDuplicateKeyException(RuntimeException ex) {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setMessage(ex.getMessage());
         errorResponse.setTimestamp(LocalDateTime.now());

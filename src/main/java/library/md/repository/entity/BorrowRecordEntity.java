@@ -6,7 +6,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Entity
-@Table
+@Table(name = "borrow_records")
 @Data
 public class BorrowRecordEntity {
 
@@ -14,7 +14,7 @@ public class BorrowRecordEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "memeber_id")
+    @JoinColumn(name = "member_id")
     private MemberEntity memberEntity;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id")
