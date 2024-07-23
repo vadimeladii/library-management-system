@@ -1,16 +1,22 @@
 package library.md.converter;
 
+import library.md.exception.NotFoundException;
+import library.md.repository.AuthorRepository;
 import library.md.repository.entity.AuthorEntity;
 import library.md.repository.entity.BookEntity;
 import library.md.repository.entity.Status;
 import library.md.utils.DateUtils;
 import library.md.view.AuthorView;
 import library.md.view.BookView;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class BookConverter implements Converter<BookView, BookEntity> {
+
+    private final AuthorRepository authorRepository;
 
     @Override
     public BookEntity convert(BookView view) {
@@ -21,9 +27,9 @@ public class BookConverter implements Converter<BookView, BookEntity> {
         entity.setPublishedDate(DateUtils.parseStringToLocalDate(view.getPublishedDate(), DateUtils.yyyy_MM_dd));
         entity.setStatus(view.getStatus() != null ? Status.valueOf(view.getStatus()) : null);
 
-        if (view.getAuthor() != null) {
-            AuthorEntity authorEntity = new AuthorEntity();
-            authorEntity.setId(view.getAuthor().getId());
+        if (view.getAuthor() != null && view.getAuthor().getId() != null) {
+            AuthorEntity authorEntity = authorRepository.findById(view.getAuthor().getId())
+                    .orElseThrow(() -> new NotFoundException(String.format("Author with ID %d not found", view.getAuthor().getId())));
             entity.setAuthorEntity(authorEntity);
         }
 

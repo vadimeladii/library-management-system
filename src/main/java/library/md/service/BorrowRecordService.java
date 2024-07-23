@@ -69,7 +69,7 @@ public class BorrowRecordService {
         entity.setBorrowDate(DateUtils.parseStringToLocalDate(view.getBorrowDate(), DateUtils.yyyy_MM_dd));
         entity.setReturnDate(DateUtils.parseStringToLocalDate(view.getReturnDate(), DateUtils.yyyy_MM_dd));
 
-        return borrowRecordConverter.convert(entity);
+        return borrowRecordConverter.convert(borrowRecordRepository.save(entity));
     }
 
     public void delete(Long id) {
